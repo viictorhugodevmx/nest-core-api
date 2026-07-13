@@ -8,10 +8,12 @@ import {
   Param,
   ParseIntPipe,
   Patch,
-  Post
+  Post,
+  Query
 } from '@nestjs/common';
 
 import { CreateOpportunityDto } from './dto/create-opportunity.dto';
+import { FilterOpportunitiesDto } from './dto/filter-opportunities.dto';
 import { UpdateOpportunityDto } from './dto/update-opportunity.dto';
 import {
   OpportunitiesService,
@@ -25,9 +27,13 @@ export class OpportunitiesController {
   ) {}
 
   @Get()
-  findAll(): { data: Opportunity[] } {
+  findAll(
+    @Query() filters: FilterOpportunitiesDto
+  ): { data: Opportunity[] } {
     return {
-      data: this.opportunitiesService.findAll()
+      data: this.opportunitiesService.findAll(
+        filters
+      )
     };
   }
 

@@ -4,6 +4,7 @@ import {
 } from '@nestjs/common';
 
 import { CreateOpportunityDto } from './dto/create-opportunity.dto';
+import { FilterOpportunitiesDto } from './dto/filter-opportunities.dto';
 import { UpdateOpportunityDto } from './dto/update-opportunity.dto';
 
 export interface Opportunity {
@@ -44,8 +45,37 @@ export class OpportunitiesService {
     }
   ];
 
-  findAll(): Opportunity[] {
-    return this.opportunities;
+  findAll(
+    filters: FilterOpportunitiesDto
+  ): Opportunity[] {
+    let results = [...this.opportunities];
+
+    if (filters.status) {
+      results = results.filter(
+        (opportunity) =>
+          opportunity.status === filters.status
+      );
+    }
+
+    if (filters.workMode) {
+      results = results.filter(
+        (opportunity) =>
+          opportunity.workMode === filters.workMode
+      );
+    }
+
+    if (filters.company) {
+      const company = filters.company.toLowerCase();
+
+      results = results.filter(
+        (opportunity) =>
+          opportunity.company
+            .toLowerCase()
+            .includes(company)
+      );
+    }
+
+    return results;
   }
 
   findOne(id: number): Opportunity {
