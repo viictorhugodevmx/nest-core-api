@@ -89,6 +89,16 @@ export class OpportunitiesService {
     return opportunity;
   }
 
+  remove(id: number): void {
+    const opportunity = this.findOne(id);
+
+    const index = this.opportunities.indexOf(
+      opportunity
+    );
+
+    this.opportunities.splice(index, 1);
+  }
+
   private getNextId(): number {
     const highestId = Math.max(
       ...this.opportunities.map(
