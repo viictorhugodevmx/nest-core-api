@@ -9,6 +9,15 @@ import {
   Min
 } from 'class-validator';
 
+export type OpportunitySortField =
+  | 'company'
+  | 'position'
+  | 'status'
+  | 'workMode'
+  | 'salary';
+
+export type SortOrder = 'asc' | 'desc';
+
 export class FilterOpportunitiesDto {
   @IsOptional()
   @IsIn([
@@ -31,6 +40,23 @@ export class FilterOpportunitiesDto {
   @IsOptional()
   @IsString()
   company?: string;
+
+  @IsOptional()
+  @IsIn([
+    'company',
+    'position',
+    'status',
+    'workMode',
+    'salary'
+  ])
+  sortBy: OpportunitySortField = 'company';
+
+  @IsOptional()
+  @IsIn([
+    'asc',
+    'desc'
+  ])
+  order: SortOrder = 'asc';
 
   @IsOptional()
   @Type(() => Number)

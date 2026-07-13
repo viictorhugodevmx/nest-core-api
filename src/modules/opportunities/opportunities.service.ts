@@ -23,6 +23,8 @@ export interface OpportunitiesResult {
     limit: number;
     total: number;
     totalPages: number;
+    sortBy: string;
+    order: string;
   };
 }
 
@@ -85,6 +87,37 @@ export class OpportunitiesService {
       );
     }
 
+    results.sort((first, second) => {
+      const firstValue = first[filters.sortBy];
+      const secondValue = second[filters.sortBy];
+
+      if (
+        firstValue === null
+        && secondValue === null
+      ) {
+        return 0;
+      }
+
+      if (firstValue === null) {
+        return 1;
+      }
+
+      if (secondValue === null) {
+        return -1;
+      }
+
+      const comparison = typeof firstValue === 'number'
+        && typeof secondValue === 'number'
+        ? firstValue - secondValue
+        : String(firstValue).localeCompare(
+          String(secondValue)
+        );
+
+      return filters.order === 'asc'
+        ? comparison
+        : comparison * -1;
+    });
+
     const total = results.length;
 
     const startIndex = (
@@ -104,7 +137,9 @@ export class OpportunitiesService {
         total,
         totalPages: Math.ceil(
           total / filters.limit
-        )
+        ),
+        sortBy: filters.sortBy,
+        order: filters.order
       }
     };
   }
