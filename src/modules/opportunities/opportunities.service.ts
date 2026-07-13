@@ -4,6 +4,7 @@ import {
 } from '@nestjs/common';
 
 import { CreateOpportunityDto } from './dto/create-opportunity.dto';
+import { UpdateOpportunityDto } from './dto/update-opportunity.dto';
 
 export interface Opportunity {
   id: number;
@@ -70,6 +71,20 @@ export class OpportunitiesService {
     };
 
     this.opportunities.push(opportunity);
+
+    return opportunity;
+  }
+
+  update(
+    id: number,
+    updateOpportunityDto: UpdateOpportunityDto
+  ): Opportunity {
+    const opportunity = this.findOne(id);
+
+    Object.assign(
+      opportunity,
+      updateOpportunityDto
+    );
 
     return opportunity;
   }

@@ -4,10 +4,12 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post
 } from '@nestjs/common';
 
 import { CreateOpportunityDto } from './dto/create-opportunity.dto';
+import { UpdateOpportunityDto } from './dto/update-opportunity.dto';
 import {
   OpportunitiesService,
   Opportunity
@@ -42,6 +44,19 @@ export class OpportunitiesController {
     return {
       data: this.opportunitiesService.create(
         createOpportunityDto
+      )
+    };
+  }
+
+  @Patch(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateOpportunityDto: UpdateOpportunityDto
+  ): { data: Opportunity } {
+    return {
+      data: this.opportunitiesService.update(
+        id,
+        updateOpportunityDto
       )
     };
   }
