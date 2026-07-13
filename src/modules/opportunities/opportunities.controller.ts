@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  ParseIntPipe,
   Post
 } from '@nestjs/common';
 
@@ -27,12 +28,10 @@ export class OpportunitiesController {
 
   @Get(':id')
   findOne(
-    @Param('id') id: string
-  ): { data: Opportunity | undefined } {
+    @Param('id', ParseIntPipe) id: number
+  ): { data: Opportunity } {
     return {
-      data: this.opportunitiesService.findOne(
-        Number(id)
-      )
+      data: this.opportunitiesService.findOne(id)
     };
   }
 

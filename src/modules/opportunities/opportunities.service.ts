@@ -1,4 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException
+} from '@nestjs/common';
 
 import { CreateOpportunityDto } from './dto/create-opportunity.dto';
 
@@ -44,10 +47,18 @@ export class OpportunitiesService {
     return this.opportunities;
   }
 
-  findOne(id: number): Opportunity | undefined {
-    return this.opportunities.find(
-      (opportunity) => opportunity.id === id
+  findOne(id: number): Opportunity {
+    const opportunity = this.opportunities.find(
+      (item) => item.id === id
     );
+
+    if (!opportunity) {
+      throw new NotFoundException(
+        `Opportunity with id ${id} was not found`
+      );
+    }
+
+    return opportunity;
   }
 
   create(
