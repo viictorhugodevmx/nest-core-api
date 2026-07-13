@@ -16,6 +16,16 @@ export interface Opportunity {
   salary: number | null;
 }
 
+export interface OpportunitiesResult {
+  data: Opportunity[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
 @Injectable()
 export class OpportunitiesService {
   private readonly opportunities: Opportunity[] = [
@@ -47,7 +57,7 @@ export class OpportunitiesService {
 
   findAll(
     filters: FilterOpportunitiesDto
-  ): Opportunity[] {
+  ): OpportunitiesResult {
     let results = [...this.opportunities];
 
     if (filters.status) {
@@ -75,7 +85,28 @@ export class OpportunitiesService {
       );
     }
 
-    return results;
+    const total = results.length;
+
+    const startIndex = (
+      filters.page - 1
+    ) * filters.limit;
+
+    const data = results.slice(
+      startIndex,
+      startIndex + filters.limit
+    );
+
+    return {
+      data,
+      meta: {
+        page: filters.page,
+        limit: filters.limit,
+        total,
+        totalPages: Math.ceil(
+          total / filters.limit
+        )
+      }
+    };
   }
 
   findOne(id: number): Opportunity {

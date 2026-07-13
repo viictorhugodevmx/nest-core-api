@@ -15,8 +15,10 @@ import {
 import { CreateOpportunityDto } from './dto/create-opportunity.dto';
 import { FilterOpportunitiesDto } from './dto/filter-opportunities.dto';
 import { UpdateOpportunityDto } from './dto/update-opportunity.dto';
-import {
-  OpportunitiesService,
+import { OpportunitiesService } from './opportunities.service';
+
+import type {
+  OpportunitiesResult,
   Opportunity
 } from './opportunities.service';
 
@@ -29,12 +31,10 @@ export class OpportunitiesController {
   @Get()
   findAll(
     @Query() filters: FilterOpportunitiesDto
-  ): { data: Opportunity[] } {
-    return {
-      data: this.opportunitiesService.findAll(
-        filters
-      )
-    };
+  ): OpportunitiesResult {
+    return this.opportunitiesService.findAll(
+      filters
+    );
   }
 
   @Get(':id')
