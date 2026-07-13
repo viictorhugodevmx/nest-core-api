@@ -1,10 +1,16 @@
 import {
+  Body,
   Controller,
   Get,
-  Param
+  Param,
+  Post
 } from '@nestjs/common';
 
-import { OpportunitiesService } from './opportunities.service';
+import { CreateOpportunityDto } from './dto/create-opportunity.dto';
+import {
+  OpportunitiesService,
+  Opportunity
+} from './opportunities.service';
 
 @Controller('opportunities')
 export class OpportunitiesController {
@@ -13,7 +19,7 @@ export class OpportunitiesController {
   ) {}
 
   @Get()
-  findAll() {
+  findAll(): { data: Opportunity[] } {
     return {
       data: this.opportunitiesService.findAll()
     };
@@ -22,10 +28,21 @@ export class OpportunitiesController {
   @Get(':id')
   findOne(
     @Param('id') id: string
-  ) {
+  ): { data: Opportunity | undefined } {
     return {
       data: this.opportunitiesService.findOne(
         Number(id)
+      )
+    };
+  }
+
+  @Post()
+  create(
+    @Body() createOpportunityDto: CreateOpportunityDto
+  ): { data: Opportunity } {
+    return {
+      data: this.opportunitiesService.create(
+        createOpportunityDto
       )
     };
   }

@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
+import { CreateOpportunityDto } from './dto/create-opportunity.dto';
+
 export interface Opportunity {
   id: number;
   company: string;
@@ -46,5 +48,29 @@ export class OpportunitiesService {
     return this.opportunities.find(
       (opportunity) => opportunity.id === id
     );
+  }
+
+  create(
+    createOpportunityDto: CreateOpportunityDto
+  ): Opportunity {
+    const opportunity: Opportunity = {
+      id: this.getNextId(),
+      ...createOpportunityDto
+    };
+
+    this.opportunities.push(opportunity);
+
+    return opportunity;
+  }
+
+  private getNextId(): number {
+    const highestId = Math.max(
+      ...this.opportunities.map(
+        (opportunity) => opportunity.id
+      ),
+      0
+    );
+
+    return highestId + 1;
   }
 }
