@@ -6,7 +6,6 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
   Query
@@ -18,52 +17,66 @@ import { UpdateOpportunityDto } from './dto/update-opportunity.dto';
 import { OpportunitiesService } from './opportunities.service';
 
 import type {
-  OpportunitiesResult,
-  Opportunity
+  OpportunitiesResult
 } from './opportunities.service';
+
+import type {
+  OpportunityDocument
+} from './schemas/opportunity.schema';
 
 @Controller('opportunities')
 export class OpportunitiesController {
   constructor(
-    private readonly opportunitiesService: OpportunitiesService
+    private readonly opportunitiesService:
+      OpportunitiesService
   ) {}
 
   @Get()
-  findAll(
+  async findAll(
     @Query() filters: FilterOpportunitiesDto
-  ): OpportunitiesResult {
+  ): Promise<OpportunitiesResult> {
     return this.opportunitiesService.findAll(
       filters
     );
   }
 
   @Get(':id')
-  findOne(
-    @Param('id', ParseIntPipe) id: number
-  ): { data: Opportunity } {
+  async findOne(
+    @Param('id') id: string
+  ): Promise<{
+    data: OpportunityDocument;
+  }> {
     return {
-      data: this.opportunitiesService.findOne(id)
+      data: await this.opportunitiesService.findOne(
+        id
+      )
     };
   }
 
   @Post()
-  create(
-    @Body() createOpportunityDto: CreateOpportunityDto
-  ): { data: Opportunity } {
+  async create(
+    @Body()
+    createOpportunityDto: CreateOpportunityDto
+  ): Promise<{
+    data: OpportunityDocument;
+  }> {
     return {
-      data: this.opportunitiesService.create(
+      data: await this.opportunitiesService.create(
         createOpportunityDto
       )
     };
   }
 
   @Patch(':id')
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateOpportunityDto: UpdateOpportunityDto
-  ): { data: Opportunity } {
+  async update(
+    @Param('id') id: string,
+    @Body()
+    updateOpportunityDto: UpdateOpportunityDto
+  ): Promise<{
+    data: OpportunityDocument;
+  }> {
     return {
-      data: this.opportunitiesService.update(
+      data: await this.opportunitiesService.update(
         id,
         updateOpportunityDto
       )
@@ -72,9 +85,9 @@ export class OpportunitiesController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(
-    @Param('id', ParseIntPipe) id: number
-  ): void {
-    this.opportunitiesService.remove(id);
+  async remove(
+    @Param('id') id: string
+  ): Promise<void> {
+    await this.opportunitiesService.remove(id);
   }
 }

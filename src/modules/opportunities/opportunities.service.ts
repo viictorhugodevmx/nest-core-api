@@ -3,21 +3,25 @@ import {
   NotFoundException
 } from '@nestjs/common';
 
+import {
+  InjectModel
+} from '@nestjs/mongoose';
+
+import type {
+  Model,
+  SortOrder
+} from 'mongoose';
+
 import { CreateOpportunityDto } from './dto/create-opportunity.dto';
 import { FilterOpportunitiesDto } from './dto/filter-opportunities.dto';
 import { UpdateOpportunityDto } from './dto/update-opportunity.dto';
-
-export interface Opportunity {
-  id: number;
-  company: string;
-  position: string;
-  status: string;
-  workMode: string;
-  salary: number | null;
-}
+import {
+  Opportunity,
+  OpportunityDocument
+} from './schemas/opportunity.schema';
 
 export interface OpportunitiesResult {
-  data: Opportunity[];
+  data: OpportunityDocument[];
   meta: {
     page: number;
     limit: number;
@@ -30,104 +34,58 @@ export interface OpportunitiesResult {
 
 @Injectable()
 export class OpportunitiesService {
-  private readonly opportunities: Opportunity[] = [
-    {
-      id: 1,
-      company: 'TechNova',
-      position: 'Frontend Developer React',
-      status: 'applied',
-      workMode: 'remote',
-      salary: 45000
-    },
-    {
-      id: 2,
-      company: 'Digital Solutions',
-      position: 'Angular Developer',
-      status: 'interview',
-      workMode: 'hybrid',
-      salary: 48000
-    },
-    {
-      id: 3,
-      company: 'Cloud Systems',
-      position: 'Frontend Engineer',
-      status: 'saved',
-      workMode: 'remote',
-      salary: null
-    }
-  ];
+  constructor(
+    @InjectModel(Opportunity.name)
+    private readonly opportunityModel:
+      Model<OpportunityDocument>
+  ) {}
 
-  findAll(
+  async findAll(
     filters: FilterOpportunitiesDto
-  ): OpportunitiesResult {
-    let results = [...this.opportunities];
+  ): Promise<OpportunitiesResult> {
+    const query: Record<string, unknown> = {};
 
     if (filters.status) {
-      results = results.filter(
-        (opportunity) =>
-          opportunity.status === filters.status
-      );
+      query.status = filters.status;
     }
 
     if (filters.workMode) {
-      results = results.filter(
-        (opportunity) =>
-          opportunity.workMode === filters.workMode
-      );
+      query.workMode = filters.workMode;
     }
 
     if (filters.company) {
-      const company = filters.company.toLowerCase();
-
-      results = results.filter(
-        (opportunity) =>
-          opportunity.company
-            .toLowerCase()
-            .includes(company)
-      );
+      query.company = {
+        $regex: filters.company,
+        $options: 'i'
+      };
     }
 
-    results.sort((first, second) => {
-      const firstValue = first[filters.sortBy];
-      const secondValue = second[filters.sortBy];
+    const sort: Record<string, SortOrder> = {
+      [filters.sortBy]:
+        filters.order === 'asc'
+          ? 1
+          : -1
+    };
 
-      if (
-        firstValue === null
-        && secondValue === null
-      ) {
-        return 0;
-      }
-
-      if (firstValue === null) {
-        return 1;
-      }
-
-      if (secondValue === null) {
-        return -1;
-      }
-
-      const comparison = typeof firstValue === 'number'
-        && typeof secondValue === 'number'
-        ? firstValue - secondValue
-        : String(firstValue).localeCompare(
-          String(secondValue)
-        );
-
-      return filters.order === 'asc'
-        ? comparison
-        : comparison * -1;
-    });
-
-    const total = results.length;
-
-    const startIndex = (
+    const skip = (
       filters.page - 1
     ) * filters.limit;
 
-    const data = results.slice(
-      startIndex,
-      startIndex + filters.limit
-    );
+    const [
+      data,
+      total
+    ] = await Promise.all([
+      this.opportunityModel
+        .find(query)
+        .sort(sort)
+        .skip(skip)
+        .limit(filters.limit)
+        .exec(),
+
+      this.opportunityModel
+        .countDocuments(query)
+        .exec()
+    ]);
 
     return {
       data,
@@ -144,10 +102,12 @@ export class OpportunitiesService {
     };
   }
 
-  findOne(id: number): Opportunity {
-    const opportunity = this.opportunities.find(
-      (item) => item.id === id
-    );
+  async findOne(
+    id: string
+  ): Promise<OpportunityDocument> {
+    const opportunity = await this.opportunityModel
+      .findById(id)
+      .exec();
 
     if (!opportunity) {
       throw new NotFoundException(
@@ -158,51 +118,51 @@ export class OpportunitiesService {
     return opportunity;
   }
 
-  create(
+  async create(
     createOpportunityDto: CreateOpportunityDto
-  ): Opportunity {
-    const opportunity: Opportunity = {
-      id: this.getNextId(),
-      ...createOpportunityDto
-    };
+  ): Promise<OpportunityDocument> {
+    const opportunity = new this.opportunityModel(
+      createOpportunityDto
+    );
 
-    this.opportunities.push(opportunity);
-
-    return opportunity;
+    return opportunity.save();
   }
 
-  update(
-    id: number,
+  async update(
+    id: string,
     updateOpportunityDto: UpdateOpportunityDto
-  ): Opportunity {
-    const opportunity = this.findOne(id);
+  ): Promise<OpportunityDocument> {
+    const opportunity = await this.opportunityModel
+      .findByIdAndUpdate(
+        id,
+        updateOpportunityDto,
+        {
+          new: true,
+          runValidators: true
+        }
+      )
+      .exec();
 
-    Object.assign(
-      opportunity,
-      updateOpportunityDto
-    );
+    if (!opportunity) {
+      throw new NotFoundException(
+        `Opportunity with id ${id} was not found`
+      );
+    }
 
     return opportunity;
   }
 
-  remove(id: number): void {
-    const opportunity = this.findOne(id);
+  async remove(
+    id: string
+  ): Promise<void> {
+    const opportunity = await this.opportunityModel
+      .findByIdAndDelete(id)
+      .exec();
 
-    const index = this.opportunities.indexOf(
-      opportunity
-    );
-
-    this.opportunities.splice(index, 1);
-  }
-
-  private getNextId(): number {
-    const highestId = Math.max(
-      ...this.opportunities.map(
-        (opportunity) => opportunity.id
-      ),
-      0
-    );
-
-    return highestId + 1;
+    if (!opportunity) {
+      throw new NotFoundException(
+        `Opportunity with id ${id} was not found`
+      );
+    }
   }
 }
