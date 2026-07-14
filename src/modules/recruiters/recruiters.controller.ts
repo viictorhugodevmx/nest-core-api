@@ -3,7 +3,6 @@ import {
   Controller,
   Get,
   Param,
-  ParseIntPipe,
   Post
 } from '@nestjs/common';
 
@@ -11,8 +10,8 @@ import { CreateRecruiterDto } from './dto/create-recruiter.dto';
 import { RecruitersService } from './recruiters.service';
 
 import type {
-  Recruiter
-} from './recruiters.service';
+  RecruiterDocument
+} from './schemas/recruiter.schema';
 
 @Controller('recruiters')
 export class RecruitersController {
@@ -21,27 +20,33 @@ export class RecruitersController {
   ) {}
 
   @Get()
-  findAll(): { data: Recruiter[] } {
+  async findAll(): Promise<{
+    data: RecruiterDocument[];
+  }> {
     return {
-      data: this.recruitersService.findAll()
+      data: await this.recruitersService.findAll()
     };
   }
 
   @Get(':id')
-  findOne(
-    @Param('id', ParseIntPipe) id: number
-  ): { data: Recruiter } {
+  async findOne(
+    @Param('id') id: string
+  ): Promise<{
+    data: RecruiterDocument;
+  }> {
     return {
-      data: this.recruitersService.findOne(id)
+      data: await this.recruitersService.findOne(id)
     };
   }
 
   @Post()
-  create(
+  async create(
     @Body() createRecruiterDto: CreateRecruiterDto
-  ): { data: Recruiter } {
+  ): Promise<{
+    data: RecruiterDocument;
+  }> {
     return {
-      data: this.recruitersService.create(
+      data: await this.recruitersService.create(
         createRecruiterDto
       )
     };

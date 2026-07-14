@@ -3,42 +3,42 @@ import {
   NotFoundException
 } from '@nestjs/common';
 
-import { CreateRecruiterDto } from './dto/create-recruiter.dto';
+import {
+  InjectModel
+} from '@nestjs/mongoose';
 
-export interface Recruiter {
-  id: number;
-  name: string;
-  email: string;
-  company: string;
-  phone?: string;
-}
+import type {
+  Model
+} from 'mongoose';
+
+import { CreateRecruiterDto } from './dto/create-recruiter.dto';
+import {
+  Recruiter,
+  RecruiterDocument
+} from './schemas/recruiter.schema';
 
 @Injectable()
 export class RecruitersService {
-  private readonly recruiters: Recruiter[] = [
-    {
-      id: 1,
-      name: 'Laura Méndez',
-      email: 'laura@technova.example.com',
-      company: 'TechNova'
-    },
-    {
-      id: 2,
-      name: 'Carlos Ruiz',
-      email: 'carlos@digitalsolutions.example.com',
-      company: 'Digital Solutions',
-      phone: '555-0102'
-    }
-  ];
+  constructor(
+    @InjectModel(Recruiter.name)
+    private readonly recruiterModel: Model<RecruiterDocument>
+  ) {}
 
-  findAll(): Recruiter[] {
-    return this.recruiters;
+  async findAll(): Promise<RecruiterDocument[]> {
+    return this.recruiterModel
+      .find()
+      .sort({
+        createdAt: -1
+      })
+      .exec();
   }
 
-  findOne(id: number): Recruiter {
-    const recruiter = this.recruiters.find(
-      (item) => item.id === id
-    );
+  async findOne(
+    id: string
+  ): Promise<RecruiterDocument> {
+    const recruiter = await this.recruiterModel
+      .findById(id)
+      .exec();
 
     if (!recruiter) {
       throw new NotFoundException(
@@ -49,27 +49,13 @@ export class RecruitersService {
     return recruiter;
   }
 
-  create(
+  async create(
     createRecruiterDto: CreateRecruiterDto
-  ): Recruiter {
-    const recruiter: Recruiter = {
-      id: this.getNextId(),
-      ...createRecruiterDto
-    };
-
-    this.recruiters.push(recruiter);
-
-    return recruiter;
-  }
-
-  private getNextId(): number {
-    const highestId = Math.max(
-      ...this.recruiters.map(
-        (recruiter) => recruiter.id
-      ),
-      0
+  ): Promise<RecruiterDocument> {
+    const recruiter = new this.recruiterModel(
+      createRecruiterDto
     );
 
-    return highestId + 1;
+    return recruiter.save();
   }
 }
