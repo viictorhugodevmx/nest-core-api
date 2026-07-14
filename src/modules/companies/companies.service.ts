@@ -3,44 +3,42 @@ import {
   NotFoundException
 } from '@nestjs/common';
 
-import { CreateCompanyDto } from './dto/create-company.dto';
+import {
+  InjectModel
+} from '@nestjs/mongoose';
 
-export interface Company {
-  id: number;
-  name: string;
-  industry: string;
-  website?: string;
-}
+import type {
+  Model
+} from 'mongoose';
+
+import { CreateCompanyDto } from './dto/create-company.dto';
+import {
+  Company,
+  CompanyDocument
+} from './schemas/company.schema';
 
 @Injectable()
 export class CompaniesService {
-  private readonly companies: Company[] = [
-    {
-      id: 1,
-      name: 'TechNova',
-      industry: 'Software',
-      website: 'https://technova.example.com'
-    },
-    {
-      id: 2,
-      name: 'Digital Solutions',
-      industry: 'Technology Consulting'
-    },
-    {
-      id: 3,
-      name: 'Cloud Systems',
-      industry: 'Cloud Computing'
-    }
-  ];
+  constructor(
+    @InjectModel(Company.name)
+    private readonly companyModel: Model<CompanyDocument>
+  ) {}
 
-  findAll(): Company[] {
-    return this.companies;
+  async findAll(): Promise<CompanyDocument[]> {
+    return this.companyModel
+      .find()
+      .sort({
+        createdAt: -1
+      })
+      .exec();
   }
 
-  findOne(id: number): Company {
-    const company = this.companies.find(
-      (item) => item.id === id
-    );
+  async findOne(
+    id: string
+  ): Promise<CompanyDocument> {
+    const company = await this.companyModel
+      .findById(id)
+      .exec();
 
     if (!company) {
       throw new NotFoundException(
@@ -51,27 +49,13 @@ export class CompaniesService {
     return company;
   }
 
-  create(
+  async create(
     createCompanyDto: CreateCompanyDto
-  ): Company {
-    const company: Company = {
-      id: this.getNextId(),
-      ...createCompanyDto
-    };
-
-    this.companies.push(company);
-
-    return company;
-  }
-
-  private getNextId(): number {
-    const highestId = Math.max(
-      ...this.companies.map(
-        (company) => company.id
-      ),
-      0
+  ): Promise<CompanyDocument> {
+    const company = new this.companyModel(
+      createCompanyDto
     );
 
-    return highestId + 1;
+    return company.save();
   }
 }

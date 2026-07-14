@@ -3,7 +3,6 @@ import {
   Controller,
   Get,
   Param,
-  ParseIntPipe,
   Post
 } from '@nestjs/common';
 
@@ -11,8 +10,8 @@ import { CompaniesService } from './companies.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 
 import type {
-  Company
-} from './companies.service';
+  CompanyDocument
+} from './schemas/company.schema';
 
 @Controller('companies')
 export class CompaniesController {
@@ -21,27 +20,33 @@ export class CompaniesController {
   ) {}
 
   @Get()
-  findAll(): { data: Company[] } {
+  async findAll(): Promise<{
+    data: CompanyDocument[];
+  }> {
     return {
-      data: this.companiesService.findAll()
+      data: await this.companiesService.findAll()
     };
   }
 
   @Get(':id')
-  findOne(
-    @Param('id', ParseIntPipe) id: number
-  ): { data: Company } {
+  async findOne(
+    @Param('id') id: string
+  ): Promise<{
+    data: CompanyDocument;
+  }> {
     return {
-      data: this.companiesService.findOne(id)
+      data: await this.companiesService.findOne(id)
     };
   }
 
   @Post()
-  create(
+  async create(
     @Body() createCompanyDto: CreateCompanyDto
-  ): { data: Company } {
+  ): Promise<{
+    data: CompanyDocument;
+  }> {
     return {
-      data: this.companiesService.create(
+      data: await this.companiesService.create(
         createCompanyDto
       )
     };
