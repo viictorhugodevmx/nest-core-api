@@ -3,7 +3,6 @@ import {
   Controller,
   Get,
   Param,
-  ParseIntPipe,
   Post
 } from '@nestjs/common';
 
@@ -11,39 +10,54 @@ import { CreateInterviewNoteDto } from './dto/create-interview-note.dto';
 import { InterviewNotesService } from './interview-notes.service';
 
 import type {
-  InterviewNote
-} from './interview-notes.service';
+  InterviewNoteDocument
+} from './schemas/interview-note.schema';
 
 @Controller('interview-notes')
 export class InterviewNotesController {
   constructor(
-    private readonly interviewNotesService: InterviewNotesService
+    private readonly interviewNotesService:
+      InterviewNotesService
   ) {}
 
   @Get()
-  findAll(): { data: InterviewNote[] } {
+  async findAll(): Promise<{
+    data: InterviewNoteDocument[];
+  }> {
     return {
-      data: this.interviewNotesService.findAll()
+      data:
+        await this.interviewNotesService
+          .findAll()
     };
   }
 
   @Get(':id')
-  findOne(
-    @Param('id', ParseIntPipe) id: number
-  ): { data: InterviewNote } {
+  async findOne(
+    @Param('id') id: string
+  ): Promise<{
+    data: InterviewNoteDocument;
+  }> {
     return {
-      data: this.interviewNotesService.findOne(id)
+      data:
+        await this.interviewNotesService
+          .findOne(id)
     };
   }
 
   @Post()
-  create(
-    @Body() createInterviewNoteDto: CreateInterviewNoteDto
-  ): { data: InterviewNote } {
+  async create(
+    @Body()
+    createInterviewNoteDto:
+      CreateInterviewNoteDto
+  ): Promise<{
+    data: InterviewNoteDocument;
+  }> {
     return {
-      data: this.interviewNotesService.create(
-        createInterviewNoteDto
-      )
+      data:
+        await this.interviewNotesService
+          .create(
+            createInterviewNoteDto
+          )
     };
   }
 }

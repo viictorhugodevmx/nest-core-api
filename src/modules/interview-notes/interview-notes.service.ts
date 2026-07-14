@@ -3,36 +3,50 @@ import {
   NotFoundException
 } from '@nestjs/common';
 
-import { CreateInterviewNoteDto } from './dto/create-interview-note.dto';
+import {
+  InjectModel
+} from '@nestjs/mongoose';
 
-export interface InterviewNote {
-  id: number;
-  opportunityId: number;
-  interviewer: string;
-  notes: string;
-  createdAt: string;
-}
+import {
+  Types
+} from 'mongoose';
+
+import type {
+  Model
+} from 'mongoose';
+
+import { CreateInterviewNoteDto } from './dto/create-interview-note.dto';
+import {
+  InterviewNote,
+  InterviewNoteDocument
+} from './schemas/interview-note.schema';
 
 @Injectable()
 export class InterviewNotesService {
-  private readonly interviewNotes: InterviewNote[] = [
-    {
-      id: 1,
-      opportunityId: 2,
-      interviewer: 'Carlos Ruiz',
-      notes: 'Technical interview focused on Angular and TypeScript.',
-      createdAt: new Date().toISOString()
-    }
-  ];
+  constructor(
+    @InjectModel(InterviewNote.name)
+    private readonly interviewNoteModel:
+      Model<InterviewNoteDocument>
+  ) {}
 
-  findAll(): InterviewNote[] {
-    return this.interviewNotes;
+  async findAll(): Promise<
+    InterviewNoteDocument[]
+  > {
+    return this.interviewNoteModel
+      .find()
+      .sort({
+        createdAt: -1
+      })
+      .exec();
   }
 
-  findOne(id: number): InterviewNote {
-    const interviewNote = this.interviewNotes.find(
-      (item) => item.id === id
-    );
+  async findOne(
+    id: string
+  ): Promise<InterviewNoteDocument> {
+    const interviewNote =
+      await this.interviewNoteModel
+        .findById(id)
+        .exec();
 
     if (!interviewNote) {
       throw new NotFoundException(
@@ -43,28 +57,18 @@ export class InterviewNotesService {
     return interviewNote;
   }
 
-  create(
-    createInterviewNoteDto: CreateInterviewNoteDto
-  ): InterviewNote {
-    const interviewNote: InterviewNote = {
-      id: this.getNextId(),
-      ...createInterviewNoteDto,
-      createdAt: new Date().toISOString()
-    };
+  async create(
+    createInterviewNoteDto:
+      CreateInterviewNoteDto
+  ): Promise<InterviewNoteDocument> {
+    const interviewNote =
+      new this.interviewNoteModel({
+        ...createInterviewNoteDto,
+        opportunityId: new Types.ObjectId(
+          createInterviewNoteDto.opportunityId
+        )
+      });
 
-    this.interviewNotes.push(interviewNote);
-
-    return interviewNote;
-  }
-
-  private getNextId(): number {
-    const highestId = Math.max(
-      ...this.interviewNotes.map(
-        (interviewNote) => interviewNote.id
-      ),
-      0
-    );
-
-    return highestId + 1;
+    return interviewNote.save();
   }
 }

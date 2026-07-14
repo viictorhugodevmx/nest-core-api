@@ -1,14 +1,12 @@
 import {
-  IsInt,
+  IsMongoId,
   IsNotEmpty,
-  IsString,
-  Min
+  IsString
 } from 'class-validator';
 
 export class CreateInterviewNoteDto {
-  @IsInt()
-  @Min(1)
-  opportunityId!: number;
+  @IsMongoId()
+  opportunityId!: string;
 
   @IsString()
   @IsNotEmpty()
