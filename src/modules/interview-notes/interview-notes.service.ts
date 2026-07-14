@@ -15,6 +15,9 @@ import type {
   Model
 } from 'mongoose';
 
+import {
+  Opportunity
+} from '../opportunities/schemas/opportunity.schema';
 import { CreateInterviewNoteDto } from './dto/create-interview-note.dto';
 import {
   InterviewNote,
@@ -26,7 +29,11 @@ export class InterviewNotesService {
   constructor(
     @InjectModel(InterviewNote.name)
     private readonly interviewNoteModel:
-      Model<InterviewNoteDocument>
+      Model<InterviewNoteDocument>,
+
+    @InjectModel(Opportunity.name)
+    private readonly opportunityModel:
+      Model<Opportunity>
   ) {}
 
   async findAll(): Promise<
@@ -34,6 +41,10 @@ export class InterviewNotesService {
   > {
     return this.interviewNoteModel
       .find()
+      .populate(
+        'opportunityId',
+        'company position status workMode salary'
+      )
       .sort({
         createdAt: -1
       })
@@ -46,6 +57,10 @@ export class InterviewNotesService {
     const interviewNote =
       await this.interviewNoteModel
         .findById(id)
+        .populate(
+          'opportunityId',
+          'company position status workMode salary'
+        )
         .exec();
 
     if (!interviewNote) {
@@ -61,6 +76,17 @@ export class InterviewNotesService {
     createInterviewNoteDto:
       CreateInterviewNoteDto
   ): Promise<InterviewNoteDocument> {
+    const opportunityExists =
+      await this.opportunityModel.exists({
+        _id: createInterviewNoteDto.opportunityId
+      });
+
+    if (!opportunityExists) {
+      throw new NotFoundException(
+        `Opportunity with id ${createInterviewNoteDto.opportunityId} was not found`
+      );
+    }
+
     const interviewNote =
       new this.interviewNoteModel({
         ...createInterviewNoteDto,

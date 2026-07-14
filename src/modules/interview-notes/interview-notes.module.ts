@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
+import { OpportunitiesModule } from '../opportunities/opportunities.module';
 import { InterviewNotesController } from './interview-notes.controller';
 import { InterviewNotesService } from './interview-notes.service';
 import {
@@ -15,7 +16,8 @@ import {
         name: InterviewNote.name,
         schema: InterviewNoteSchema
       }
-    ])
+    ]),
+    OpportunitiesModule
   ],
   controllers: [
     InterviewNotesController

@@ -22,6 +22,9 @@ import {
   ],
   providers: [
     OpportunitiesService
+  ],
+  exports: [
+    MongooseModule
   ]
 })
 export class OpportunitiesModule {}
