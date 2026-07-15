@@ -4,6 +4,7 @@ import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(
@@ -31,6 +32,10 @@ async function bootstrap(): Promise<void> {
 
   app.useGlobalFilters(
     new HttpExceptionFilter()
+  );
+
+  app.useGlobalInterceptors(
+    new ResponseInterceptor()
   );
 
   await app.listen(port);
