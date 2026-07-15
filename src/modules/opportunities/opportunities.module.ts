@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
+import { ApiKeyGuard } from '../../common/guards/api-key.guard';
 import { OpportunitiesController } from './opportunities.controller';
 import { OpportunitiesService } from './opportunities.service';
 import {
@@ -21,7 +22,8 @@ import {
     OpportunitiesController
   ],
   providers: [
-    OpportunitiesService
+    OpportunitiesService,
+    ApiKeyGuard
   ],
   exports: [
     MongooseModule
