@@ -1,10 +1,19 @@
-import { Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule
+} from '@nestjs/common';
+
 import {
   ConfigModule,
   ConfigService
 } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
 
+import {
+  MongooseModule
+} from '@nestjs/mongoose';
+
+import { RequestIdMiddleware } from './common/middlewares/request-id.middleware';
 import { CompaniesModule } from './modules/companies/companies.module';
 import { InterviewNotesModule } from './modules/interview-notes/interview-notes.module';
 import { OpportunitiesModule } from './modules/opportunities/opportunities.module';
@@ -37,4 +46,12 @@ import { StatusModule } from './modules/status/status.module';
     InterviewNotesModule
   ]
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(
+    consumer: MiddlewareConsumer
+  ): void {
+    consumer
+      .apply(RequestIdMiddleware)
+      .forRoutes('*');
+  }
+}

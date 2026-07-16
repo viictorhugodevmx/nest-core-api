@@ -13,6 +13,10 @@ import type {
   Observable
 } from 'rxjs';
 
+import type {
+  RequestWithId
+} from '../middlewares/request-id.middleware';
+
 interface ResponseWithData {
   data?: unknown;
   meta?: unknown;
@@ -22,9 +26,13 @@ interface ResponseWithData {
 export class ResponseInterceptor
 implements NestInterceptor {
   intercept(
-    _context: ExecutionContext,
+    context: ExecutionContext,
     next: CallHandler
   ): Observable<unknown> {
+    const request = context
+      .switchToHttp()
+      .getRequest<RequestWithId>();
+
     return next.handle().pipe(
       map((responseBody: ResponseWithData) => {
         if (
@@ -35,6 +43,7 @@ implements NestInterceptor {
           return {
             success: true,
             ...responseBody,
+            requestId: request.requestId,
             timestamp: new Date().toISOString()
           };
         }
@@ -42,6 +51,7 @@ implements NestInterceptor {
         return {
           success: true,
           data: responseBody,
+          requestId: request.requestId,
           timestamp: new Date().toISOString()
         };
       })

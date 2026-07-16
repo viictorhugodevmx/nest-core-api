@@ -10,9 +10,12 @@ import type {
 } from '@nestjs/common';
 
 import type {
-  Request,
   Response
 } from 'express';
+
+import type {
+  RequestWithId
+} from '../middlewares/request-id.middleware';
 
 interface ExceptionResponse {
   message?: string | string[];
@@ -30,7 +33,8 @@ implements ExceptionFilter {
 
     const response = context.getResponse<Response>();
 
-    const request = context.getRequest<Request>();
+    const request =
+      context.getRequest<RequestWithId>();
 
     const statusCode =
       exception instanceof HttpException
@@ -63,6 +67,7 @@ implements ExceptionFilter {
             : undefined
         ),
       path: request.originalUrl,
+      requestId: request.requestId,
       timestamp: new Date().toISOString()
     });
   }
