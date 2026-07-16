@@ -10,8 +10,17 @@ import {
 } from '@nestjs/config';
 
 import {
+  APP_GUARD
+} from '@nestjs/core';
+
+import {
   MongooseModule
 } from '@nestjs/mongoose';
+
+import {
+  ThrottlerGuard,
+  ThrottlerModule
+} from '@nestjs/throttler';
 
 import { RequestIdMiddleware } from './common/middlewares/request-id.middleware';
 import { CompaniesModule } from './modules/companies/companies.module';
@@ -24,6 +33,26 @@ import { StatusModule } from './modules/status/status.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true
+    }),
+
+    ThrottlerModule.forRootAsync({
+      inject: [
+        ConfigService
+      ],
+      useFactory: (
+        configService: ConfigService
+      ) => [
+        {
+          ttl: configService.get<number>(
+            'RATE_LIMIT_TTL_MS',
+            60000
+          ),
+          limit: configService.get<number>(
+            'RATE_LIMIT_MAX_REQUESTS',
+            100
+          )
+        }
+      ]
     }),
 
     MongooseModule.forRootAsync({
@@ -44,6 +73,12 @@ import { StatusModule } from './modules/status/status.module';
     CompaniesModule,
     RecruitersModule,
     InterviewNotesModule
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard
+    }
   ]
 })
 export class AppModule implements NestModule {
