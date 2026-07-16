@@ -2,6 +2,9 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 
+import compression from 'compression';
+import helmet from 'helmet';
+
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { RequestLoggerInterceptor } from './common/interceptors/request-logger.interceptor';
@@ -21,7 +24,25 @@ async function bootstrap(): Promise<void> {
     3004
   );
 
+  const corsOrigin = configService.get<string>(
+    'CORS_ORIGIN',
+    'http://localhost:5173'
+  );
+
   app.setGlobalPrefix('api');
+
+  app.use(helmet());
+
+  app.enableCors({
+    origin: corsOrigin,
+    credentials: true
+  });
+
+  app.use(
+    compression({
+      threshold: 1024
+    })
+  );
 
   app.useGlobalPipes(
     new ValidationPipe({
