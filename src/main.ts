@@ -4,6 +4,7 @@ import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { RequestLoggerInterceptor } from './common/interceptors/request-logger.interceptor';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
 async function bootstrap(): Promise<void> {
@@ -35,6 +36,7 @@ async function bootstrap(): Promise<void> {
   );
 
   app.useGlobalInterceptors(
+    new RequestLoggerInterceptor(),
     new ResponseInterceptor()
   );
 
