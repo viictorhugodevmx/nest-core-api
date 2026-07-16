@@ -1,98 +1,504 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Nest Core API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+NestJS REST API for tracking job opportunities, companies, recruiters and interview notes.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+This project focuses on learning and applying core NestJS concepts while building a practical backend for job search tracking. It includes modular architecture, DTO validation, MongoDB persistence, request tracing, global response formatting, standardized error handling and API protection with an API key guard.
 
-## Description
+## Main Features
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- NestJS modular architecture
+- MongoDB integration with Mongoose
+- Environment configuration with ConfigModule
+- DTO validation with ValidationPipe
+- Query filters
+- Pagination
+- Sorting
+- CRUD operations
+- MongoDB schemas with decorators
+- ObjectId references
+- Populate related documents
+- Global Exception Filter
+- Global Response Interceptor
+- Request logging Interceptor
+- Request ID Middleware
+- API Key Guard
+- Helmet security headers
+- CORS configuration
+- HTTP compression
+- Rate limiting with Throttler
+- Automated smoke test
 
-## Project setup
+## Tech Stack
 
-```bash
-$ npm install
+- Node.js 20
+- TypeScript 5.9
+- NestJS
+- MongoDB
+- Mongoose
+- class-validator
+- class-transformer
+- Helmet
+- Compression
+- Nest Throttler
+
+## Project Domain
+
+The API is designed for tracking job opportunities.
+
+Main resources:
+
+```text
+companies
+recruiters
+opportunities
+interview-notes
 ```
 
-## Compile and run the project
+## Project Structure
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```text
+src/
+├── app.module.ts
+├── main.ts
+├── common/
+│   ├── filters/
+│   │   └── http-exception.filter.ts
+│   ├── guards/
+│   │   └── api-key.guard.ts
+│   ├── interceptors/
+│   │   ├── request-logger.interceptor.ts
+│   │   └── response.interceptor.ts
+│   └── middlewares/
+│       └── request-id.middleware.ts
+└── modules/
+    ├── companies/
+    ├── interview-notes/
+    ├── opportunities/
+    ├── recruiters/
+    └── status/
 ```
 
-## Run tests
+## Requirements
+
+- Node.js `20.19.4`
+- npm
+- MongoDB running locally
+- curl
+- jq
+
+## Installation
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm install
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Create the environment file:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+cp .env.example .env
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Environment Variables
 
-## Resources
+| Variable | Description | Example |
+|---|---|---|
+| `NODE_ENV` | Runtime environment | `development` |
+| `PORT` | API port | `3004` |
+| `APP_NAME` | Application name | `nest-core-api` |
+| `MONGODB_URI` | MongoDB connection string | `mongodb://127.0.0.1:27017/nest_job_tracker` |
+| `API_KEY` | API key required for protected opportunity writes | `change-this-value` |
+| `CORS_ORIGIN` | Allowed frontend origin | `http://localhost:5173` |
+| `RATE_LIMIT_TTL_MS` | Rate limit time window in milliseconds | `60000` |
+| `RATE_LIMIT_MAX_REQUESTS` | Maximum requests per time window | `100` |
 
-Check out a few resources that may come in handy when working with NestJS:
+## Development
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Start MongoDB:
 
-## Support
+```bash
+sudo systemctl start mongod
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Start the API:
 
-## Stay in touch
+```bash
+npm run start:dev
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+The API runs at:
 
-## License
+```text
+http://localhost:3004
+```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## Build
+
+```bash
+npm run build
+```
+
+## Production Start
+
+```bash
+npm run build
+npm run start:prod
+```
+
+## API Response Format
+
+Successful responses are wrapped by a global interceptor:
+
+```json
+{
+  "success": true,
+  "data": {},
+  "requestId": "frontend-123",
+  "timestamp": "2026-07-12T15:00:00.000Z"
+}
+```
+
+Paginated responses include metadata:
+
+```json
+{
+  "success": true,
+  "data": [],
+  "meta": {
+    "page": 1,
+    "limit": 10,
+    "total": 25,
+    "totalPages": 3,
+    "sortBy": "company",
+    "order": "asc"
+  },
+  "requestId": "frontend-123",
+  "timestamp": "2026-07-12T15:00:00.000Z"
+}
+```
+
+## Error Format
+
+Errors are handled by a global exception filter:
+
+```json
+{
+  "statusCode": 404,
+  "message": "Opportunity with id 64b000000000000000000999 was not found",
+  "error": "Not Found",
+  "path": "/api/opportunities/64b000000000000000000999",
+  "requestId": "frontend-123",
+  "timestamp": "2026-07-12T15:00:00.000Z"
+}
+```
+
+## Request ID
+
+Every request receives an `X-Request-Id` header.
+
+Clients can also provide their own:
+
+```bash
+curl -s \
+  http://localhost:3004/api/status \
+  -H "X-Request-Id: frontend-123" | jq
+```
+
+The same request ID appears in:
+
+- Response headers
+- Successful response bodies
+- Error response bodies
+- Request logs
+
+## Main Endpoints
+
+### Status
+
+```http
+GET /api/status
+```
+
+### Companies
+
+```http
+GET  /api/companies
+GET  /api/companies/:id
+POST /api/companies
+```
+
+Create company:
+
+```bash
+curl -s -X POST \
+  http://localhost:3004/api/companies \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Frontend Talent",
+    "industry": "Recruitment",
+    "website": "https://frontendtalent.example.com"
+  }' | jq
+```
+
+### Recruiters
+
+```http
+GET  /api/recruiters
+GET  /api/recruiters/:id
+POST /api/recruiters
+```
+
+Create recruiter:
+
+```bash
+curl -s -X POST \
+  http://localhost:3004/api/recruiters \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Andrea Torres",
+    "email": "andrea@frontendtalent.example.com",
+    "company": "Frontend Talent",
+    "phone": "555-0199"
+  }' | jq
+```
+
+### Opportunities
+
+```http
+GET    /api/opportunities
+GET    /api/opportunities/:id
+POST   /api/opportunities
+PATCH  /api/opportunities/:id
+DELETE /api/opportunities/:id
+```
+
+Write operations require:
+
+```http
+X-API-Key: your-api-key
+```
+
+Create opportunity:
+
+```bash
+curl -s -X POST \
+  http://localhost:3004/api/opportunities \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: change-this-value" \
+  -d '{
+    "company": "Frontend Talent",
+    "position": "Senior React Developer",
+    "status": "applied",
+    "workMode": "remote",
+    "salary": 50000
+  }' | jq
+```
+
+Filter, sort and paginate:
+
+```bash
+curl -s \
+  "http://localhost:3004/api/opportunities?status=applied&sortBy=salary&order=desc&page=1&limit=5" \
+  | jq
+```
+
+Supported statuses:
+
+```text
+saved
+applied
+interview
+offer
+rejected
+```
+
+Supported work modes:
+
+```text
+remote
+hybrid
+onsite
+```
+
+Supported sort fields:
+
+```text
+company
+position
+status
+workMode
+salary
+```
+
+### Interview Notes
+
+```http
+GET  /api/interview-notes
+GET  /api/interview-notes/:id
+POST /api/interview-notes
+```
+
+Interview notes reference opportunities through MongoDB ObjectId.
+
+Create note:
+
+```bash
+OPPORTUNITY_ID="<existing-opportunity-id>"
+
+curl -s -X POST \
+  http://localhost:3004/api/interview-notes \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"opportunityId\": \"$OPPORTUNITY_ID\",
+    \"interviewer\": \"Andrea Torres\",
+    \"notes\": \"Strong frontend profile. Continue with technical interview.\"
+  }" | jq
+```
+
+When listing notes, the related opportunity is populated:
+
+```json
+{
+  "opportunityId": {
+    "_id": "...",
+    "company": "Frontend Talent",
+    "position": "Senior React Developer",
+    "status": "applied",
+    "workMode": "remote",
+    "salary": 50000
+  }
+}
+```
+
+## Core NestJS Concepts Used
+
+### Module
+
+Groups related controllers, services and providers.
+
+```text
+CompaniesModule
+├── CompaniesController
+├── CompaniesService
+└── CompanySchema
+```
+
+### Controller
+
+Receives HTTP requests.
+
+```text
+GET /api/companies
+-> CompaniesController
+```
+
+### Service
+
+Contains business logic and data access.
+
+```text
+CompaniesController
+-> CompaniesService
+-> MongoDB
+```
+
+### DTO
+
+Defines and validates request data.
+
+```text
+CreateOpportunityDto
+UpdateOpportunityDto
+FilterOpportunitiesDto
+```
+
+### Pipe
+
+Validates and transforms input.
+
+```text
+ValidationPipe
+ParseIntPipe
+```
+
+### Guard
+
+Protects routes.
+
+```text
+ApiKeyGuard
+```
+
+### Middleware
+
+Runs before controllers.
+
+```text
+RequestIdMiddleware
+```
+
+### Interceptor
+
+Transforms or observes successful responses.
+
+```text
+ResponseInterceptor
+RequestLoggerInterceptor
+```
+
+### Exception Filter
+
+Formats errors globally.
+
+```text
+HttpExceptionFilter
+```
+
+## Smoke Test
+
+Start the API:
+
+```bash
+npm run start:dev
+```
+
+In another terminal:
+
+```bash
+npm run smoke:test
+```
+
+Expected result:
+
+```text
+Smoke test summary
+Passed: 12
+Failed: 0
+
+Smoke test completed successfully
+```
+
+You can override the URL and API key:
+
+```bash
+BASE_URL=http://localhost:3004 \
+API_KEY=nest-core-secret \
+npm run smoke:test
+```
+
+## Scripts
+
+```bash
+npm run start
+npm run start:dev
+npm run start:prod
+npm run build
+npm run test
+npm run test:e2e
+npm run smoke:test
+```
+
+## Notes
+
+This project intentionally starts with in-memory modules and progressively migrates resources to MongoDB. The final version stores companies, recruiters, opportunities and interview notes in MongoDB.
+
+The API demonstrates core NestJS backend patterns using a practical job tracking domain.
